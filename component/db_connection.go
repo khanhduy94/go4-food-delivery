@@ -1,6 +1,7 @@
 package component
 
 import (
+	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"os"
@@ -15,7 +16,9 @@ type DBConnection struct {
 }
 
 func (db *DBConnection) GetURL() string {
-	return db.Username + ":" + db.Password + "@tcp" + "(" + db.Host + ":" + db.Port + ")/" + db.Name + "?" + "parseTime=true&loc=Local"
+	url := db.Username + ":" + db.Password + "@tcp" + "(" + db.Host + ":" + db.Port + ")/" + db.Name + "?" + "parseTime=true&loc=Local"
+	fmt.Printf("%s", url)
+	return url
 }
 
 func GetDBConnection() (*gorm.DB, error) {

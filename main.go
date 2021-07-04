@@ -21,7 +21,6 @@ func main() {
 	s3SecretKey := os.Getenv("S3SecretKey")
 	s3Domain := os.Getenv("S3Domain")
 	secretKey := os.Getenv("SYSTEM_SECRET")
-
 	s3Provider := upload.NewS3Provider(s3BucketName, s3Region, s3APIKey, s3SecretKey, s3Domain)
 
 	db, err := component.GetDBConnection()
@@ -29,6 +28,12 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	// Init create table
+	//db.AutoMigrate(&restaurantmodel.Restaurant{})
+	//db.AutoMigrate(&usermodel.User{})
+	//db.AutoMigrate(&uploadmodel.Upload{})
+	//db.AutoMigrate(&restaurantlikemodel.Like{})
 
 	if err := runService(db, s3Provider, secretKey); err != nil {
 		log.Fatalln(err)

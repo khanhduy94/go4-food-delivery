@@ -7,7 +7,7 @@ import (
 )
 
 type RegisterStorage interface {
-	FindUser(ctx context.Context, conditions common.JsonObject, moreInfo ...string) (*usermodel.User, error)
+	FindUser(ctx context.Context, conditions map[string]interface{}, moreInfo ...string) (*usermodel.User, error)
 	CreateUser(ctx context.Context, data *usermodel.UserCreate) error
 }
 
@@ -28,7 +28,7 @@ func NewRegisterBusiness(registerStorage RegisterStorage, hasher Hasher) *regist
 }
 
 func (business *registerBusiness) Register(ctx context.Context, data *usermodel.UserCreate) error {
-	user, _ := business.registerStorage.FindUser(ctx, common.JsonObject{"email": data.Email})
+	user, _ := business.registerStorage.FindUser(ctx, map[string]interface{}{"email": data.Email})
 	if user != nil {
 		return usermodel.ErrEmailExisted
 	}

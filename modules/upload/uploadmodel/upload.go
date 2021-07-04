@@ -7,6 +7,18 @@ import (
 
 const EntityName = "Upload"
 
+type ImgFor struct {
+	Model    string
+	Identify string
+}
+
+func NewImgFor(model string, identify string) *ImgFor {
+	return &ImgFor{
+		Model:    model,
+		Identify: identify,
+	}
+}
+
 type Upload struct {
 	common.SQLModel `json:",inline"`
 	common.Image    `json:",inline"`

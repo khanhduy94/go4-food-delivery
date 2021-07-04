@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"demo/common"
-	"demo/component/uploadprovider"
+	"demo/component/upload"
 	"demo/modules/upload/uploadmodel"
+	"demo/modules/user/userbiz"
+	"demo/modules/user/usermodel"
 	"fmt"
 	"image"
 	"io"
@@ -20,15 +22,16 @@ type CreateImageStorage interface {
 }
 
 type uploadBiz struct {
-	provider uploadprovider.UploadProvider
-	imgStore CreateImageStorage
+	provider  upload.Provider
+	imgStore  CreateImageStorage
+	userStore userbiz.UserStorage
 }
 
-func NewUploadBiz(provider uploadprovider.UploadProvider, imgStore CreateImageStorage) *uploadBiz {
-	return &uploadBiz{provider: provider, imgStore: imgStore}
+func NewUploadBiz(provider upload.Provider, imgStore CreateImageStorage, userStore userbiz.UserStorage) *uploadBiz {
+	return &uploadBiz{provider: provider, imgStore: imgStore, userStore: userStore}
 }
 
-func (biz *uploadBiz) Upload(ctx context.Context, data []byte, folder, fileName string) (*common.Image, error) {
+func (biz *uploadBiz) Upload(ctx context.Context, data []byte, folder, fileName string, imgFor *uploadmodel.ImgFor) (*common.Image, error) {
 	fileBytes := bytes.NewBuffer(data)
 
 	w, h, err := getImageDimension(fileBytes)
@@ -52,8 +55,15 @@ func (biz *uploadBiz) Upload(ctx context.Context, data []byte, folder, fileName 
 
 	img.Width = w
 	img.Height = h
-	//img.CloudName = "s3" // should be set in provider
+	img.CloudName = "s3" // should be set in provider
 	img.Extension = fileExt
+
+	if imgFor.Model == "user" {
+		if user, _ := biz.userStore.FindUser(ctx, map[string]interface{}{"email": imgFor.Identify}); user != nil {
+			userCreate := usermodel.UserCreate{SQLModel: common.SQLModel{Id: user.Id}, Avatar: img}
+			biz.userStore.UpdateUser(ctx, &userCreate)
+		}
+	}
 
 	//if err := biz.imgStore.CreateImage(ctx, img); err != nil {
 	//	// delete img on S3

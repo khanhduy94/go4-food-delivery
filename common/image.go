@@ -40,7 +40,7 @@ func (i *Image) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return json.Marshal(i), nil
+	return json.Marshal(i)
 }
 
 type Images []Image

@@ -6,10 +6,11 @@ import (
 	"demo/component"
 	"demo/component/tokenprovider"
 	"demo/modules/user/usermodel"
+	"fmt"
 )
 
 type LoginStorage interface {
-	FindUser(ctx context.Context, condition common.JsonObject, moreInfo ...string) (*usermodel.User, error)
+	FindUser(ctx context.Context, condition map[string]interface{}, moreInfo ...string) (*usermodel.User, error)
 }
 
 type loginBusiness struct {
@@ -44,6 +45,8 @@ func (business *loginBusiness) Login(ctx context.Context, data *usermodel.UserLo
 	}
 
 	passHashed := business.hasher.Hash(data.Password + user.Salt)
+
+	fmt.Printf("%s", passHashed)
 
 	if user.Password != passHashed {
 		return nil, usermodel.ErrUsernameOrPasswordInvalid
